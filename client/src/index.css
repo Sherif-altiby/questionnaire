@@ -1,0 +1,5 @@
+@media (max-width: 992px){
+    .users-page{
+        flex-direction: column-reverse;
+    }
+}
