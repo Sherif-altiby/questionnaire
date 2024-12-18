@@ -2,7 +2,12 @@ import express from "express";
 import { PORT , MONGODBURL} from "./config.js";
 import mongoose from "mongoose";
 import  cors  from 'cors'
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+
 import { Questionaire } from "./models/questionaireModel.js";
+import { Image } from "./models/imageModal.js";
 
 const app = express();
 
@@ -10,13 +15,73 @@ app.use(cors());
 
 app.use(express.json())
 
+const storage = multer.diskStorage({
+  destination: './uploads/',
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+app.use('/uploads', express.static(path.resolve('uploads')));
+
+const upload = multer({ storage });
+
+app.post('/upload', upload.single('image'), async (req, res) => {
+  try {
+    const newImage = new Image({
+      name: req.file.originalname,
+      imageUrl: `/uploads/${req.file.filename}`,
+    });
+
+    await newImage.save();
+
+    const allImages = await Image.find().sort({ createdAt: 1 });
+
+    if (allImages.length > 1) {
+      const imageToDelete = allImages[0]; 
+      const imagePath = path.resolve(imageToDelete.imageUrl);
+
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+
+      await Image.deleteOne({ _id: imageToDelete._id });
+    }
+
+    res.status(200).json({
+      message: 'Image uploaded and previous image deleted successfully',
+      image: newImage,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while uploading the image' });
+  }
+});
+
+app.get('/image', async (req, res) => {
+  try {
+    const latestImage = await Image.findOne().sort({ createdAt: -1 });
+
+    if (!latestImage) {
+      return res.status(404).json({ message: 'No image found' });
+    }
+
+    res.status(200).json({
+      message: 'Latest image fetched successfully',
+      image: latestImage,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'An error occurred while fetching the image' });
+  }
+});
+
 app.get('/', (req, res) => {
    console.log(req);
 
    return res.status(200).send('Welcome to index')
 })
 
-// create a quetionaire
 app.post('/questionaire', async (req, res) => {
     
     try{

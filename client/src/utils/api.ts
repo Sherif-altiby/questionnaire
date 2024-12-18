@@ -1,3 +1,5 @@
+import { LatestImageResponse } from "./types";
+
 const SERVER_URL = "http://localhost:5000";
 
 export const getQuestionaires = async () => {
@@ -66,3 +68,30 @@ export const getTopRatesQuestionaires = async (id: string) => {
 
     return res.json();  
 };
+
+
+export const fetchLatestImage = async () => {
+    const response = await fetch(`${SERVER_URL}/image`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch the latest image.");
+    }
+    return response.json();
+  };
+
+
+  // Upload an image
+export const uploadImage = async (file: File): Promise<{ message: string }> => {
+    const formData = new FormData();
+    formData.append("image", file);
+  
+    const response = await fetch(`${SERVER_URL}/upload`, {
+      method: "POST",
+      body: formData,
+    });
+  
+    if (!response.ok) {
+      throw new Error("Failed to upload the image.");
+    }
+  
+    return response.json();
+  };

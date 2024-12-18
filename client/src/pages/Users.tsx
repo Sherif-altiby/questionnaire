@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import img from '../assets/react.svg' 
 import { useParams } from "react-router-dom";
-import { getTopRatesQuestionaires, updateQuestionaires } from '../utils/api';
+import { fetchLatestImage, getTopRatesQuestionaires, updateQuestionaires } from '../utils/api';
 import { useEffect, useState } from 'react';
-import { Rate, questionnaireTypes } from '../utils/types';
+import { ImageInterface, Rate, questionnaireTypes } from '../utils/types';
 
 const Users = () => {
  
@@ -24,6 +24,12 @@ const Users = () => {
                      return response;  
               },
        });
+
+       const { data: imageData } = useQuery({
+              queryKey: ["image"],
+              queryFn:  fetchLatestImage,
+       });
+
 
        useEffect(() => {
               if (data) {
@@ -102,10 +108,32 @@ const Users = () => {
              </div>
  
             <div className="card owner">
-                 <img src={img} alt="" />
 
-                 <p> Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dolores tempore debitis adipisci, commodi laudantium perferendis qui facilis, ut necessitatibus, eaque quae optio. Facilis dolores ad, nostrum voluptate distinctio porro voluptas! </p>
-            </div>
+                 {data ? ( <img src={`http://localhost:5000${imageData.image.imageUrl}`} alt="" /> ) : ( <img src={img} alt="" />  )}
+  
+                  <h2> 🛠️ ازاي تستعد؟ </h2>
+
+                  <p> ⚪ نوم كافي: عشان تفضل مركز طول اليوم. </p>
+                  <p> ⚪ أكل صحي: متخففش أكلك لتقلل الإحساس بالخمول. </p>
+                  <p> ⚪ مياه وأسناكس: خلي دايمًا جنبك مياه وأسناكس خفيفة عشان متقومش كتير، والمياه هتفوقك وتنشط دماغك. </p>
+                  <p> ⚪ البعد عن المشتتات: الموبايل مفتوح فقط للبث أو المذاكرة، مفيش سوشيال ميديا! </p>
+                  <p> ⚪ تحضير جدول: خطط لكل سيشن هتذاكر فيها إيه. </p>
+                  <p> ⚪ ورقة أفكار: سجل الأفكار الجانبية اللي ممكن تشتتك وكمل مذاكرتك. </p>
+
+                   <h2> 📊 إيه المميزات اللي هيقدمها التحدي ده؟ </h2>
+
+                   <p> 🥇 أفضل أداء يومي: اسمك هيظهر في لوحة الشرف! </p>
+                   <p> 📅 تقرير أسبوعي: هنشوف فيه مين أفضل طالب ويتكرم  </p>
+                   <p> 🎁 مكافآت وشارات مميزة: زي تحديات النجوم أو ألقاب للتحفيز! </p>
+                   <p> 🤝 مجتمع تشجيعي: طلاب زيك يشاركوا نفس الهدف والطموح، فهتلاقي دعم وحماس. </p>
+
+                   <h2> 🎯 نصايح مهمة هتفرق معاك: </h2>
+
+                   <p> 🔴 ذاكر على وضوء. </p>
+                   <p> 🔴 خلي في ورد قرآن خلال الريست. </p>
+                   <p> 🔴 متأخرش الصلاة مهما كنت بتعمل. </p>
+                   <p> 🔴 حضّر "To-Do List" من بليل عشان يومك يكون منظم. </p>
+              </div>
 
    </div>
   )

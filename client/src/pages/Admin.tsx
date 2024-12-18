@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { createQuestionaires, deleteQuestionaires, getQuestionaires } from '../utils/api';
+import { createQuestionaires, deleteQuestionaires, getQuestionaires, uploadImage } from '../utils/api';
 import { questionnaireTypes } from '../utils/types';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
  
 
@@ -18,6 +18,8 @@ const Admin = () => {
 
   const [quesLink, setQuesLink] = useState("")
   
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
  
   const { data , isLoading } = useQuery({
     queryKey: ['questionnaires'],  
@@ -66,6 +68,38 @@ const handleDelete = (id: string) => {
   mutationDelete.mutate(id);  
 };
 
+
+  const uploadMutation =  useMutation({
+    mutationFn: ( file: File ) => uploadImage(file),  
+    onSuccess: (data) => {
+         console.log("data", data)
+    },
+    onError: (error) => {
+        console.error("Error creating questionaire:", error.message);
+    },
+});
+
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+ 
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
+
+  // Handle file upload
+  const handleUpload = (e: React.FormEvent) => {
+  
+    e.preventDefault()
+
+    if (selectedFile) {
+      uploadMutation.mutate(selectedFile);
+      setSelectedFile(null); 
+    } else {
+      alert("Please select a file first.");
+    }
+  };
+
   return (
     <div className="users-page main-container" >
             
@@ -88,6 +122,16 @@ const handleDelete = (id: string) => {
                 <p> { quesLink } </p>
              </div>
            )}
+
+           <div className="card went-to-n ">
+                   <h2>  اضف صورة  </h2>
+
+                   <form className='give-rate-frm' onSubmit={handleUpload} >
+                            <input onChange={handleFileChange} type="file" placeholder='الصورة' /> 
+ 
+                            <button type='submit' > اضف </button>
+                   </form>
+            </div>
 
     </div>
   
